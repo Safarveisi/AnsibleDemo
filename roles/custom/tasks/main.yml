@@ -11,7 +11,7 @@
 
 - name: Print fault token
   debug:
-    var: fault_token.stdout
+    var: fault_token.stdout.split('-')[0].split('.')[1]
   when: fault_token.stdout.find("hvs") != -1
 
 - name: Whether or not the repository has already been cloned locally

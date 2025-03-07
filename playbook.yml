@@ -11,6 +11,7 @@
 
     - name: parent_directory
       prompt: Name of the parent directory
+      default: kubeflow-mlops
       private: false
   
   roles:

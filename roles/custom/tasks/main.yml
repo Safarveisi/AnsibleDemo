@@ -1,0 +1,54 @@
+- name: Show some facts
+  debug:
+    var: ansible_facts['kernel_version']
+  when:
+    - ansible_facts['os_family'] == "Debian"
+    - ansible_facts['distribution_major_version'] | int >= 12
+
+- name: Register a variable
+  ansible.builtin.command: cat {{ home_directory }}/.fault-token
+  register: fault_token
+
+- name: Print fault token
+  debug:
+    var: fault_token.stdout
+  when: fault_token.stdout.find("hvs") != -1
+
+- name: Whether or not the repository has already been cloned locally
+  ansible.builtin.stat:
+    dest: "{{ home_directory }}/{{ parent_directory }}"
+  register: repo_exists_result
+    
+- name: Clone Github Repo
+  ansible.builtin.git:
+    repo: https://github.com/Safarveisi/KubeMLOps.git
+    dest: "{{ home_directory }}/{{ parent_directory }}"
+    single_branch: yes
+    version: master
+  register: clone_result
+  when: not repo_exists_result.stat.isdir is defined and clone_git_repo
+
+- name: Show clone result
+  debug:
+    var: clone_result
+  when: clone_result.changed
+
+- name: Check if the file to copy already exists
+  ansible.builtin.stat:
+    path: "{{ home_directory }}/ansible_file.txt"
+  register: file_stat
+
+- name: Copy a file into the remote server
+  ansible.builtin.template: 
+    src: ansible_file.txt
+    dest: "{{ home_directory }}"
+    owner: ssafarveisi
+    mode: u+rw
+  register: copy_result
+  ignore_errors: true
+  when: not file_stat.stat.exists 
+
+- name: Copy result
+  debug:
+    var: copy_result
+  when: copy_result.changed

@@ -1,0 +1,17 @@
+- name: Github play
+  hosts: ionos
+  gather_facts: true
+  remote_user: ssafarveisi
+  
+  vars:
+    home_directory: /home/ssafarveisi
+    ansible_python_interpreter: /usr/bin/python3.11
+  
+  vars_prompt:
+
+    - name: parent_directory
+      prompt: Name of the parent directory
+      private: false
+  
+  roles:
+    - custom

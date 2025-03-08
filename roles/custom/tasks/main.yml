@@ -1,3 +1,8 @@
+- name: Check for vars
+  ansible.builtin.assert:
+    that:
+      - clone_git_repo is defined
+
 - name: Show some facts
   ansible.builtin.debug:
     var: ansible_facts['kernel_version']
@@ -66,3 +71,21 @@
 - name: Print the file name matched in the search
   ansible.builtin.debug: 
     msg: "{{ fraud_directories.files | map(attribute='path') | list  | map('split', '/') | map('last') | list }}"
+
+- name: List all files in a directory
+  ansible.builtin.command: 
+    cmd: ls {{ home_directory}}/ansible_test_directory/
+  register: listed_files
+  
+- name: Remove files 2 and 3
+  ansible.builtin.file:
+    path: "{{ home_directory }}/ansible_test_directory/{{ item }}"
+    state: absent
+  loop: "{{ listed_files.stdout_lines }}"
+  when: 'item is regex("^file_to_remove[23].txt$")'
+
+- name: Change a line in a file
+  ansible.builtin.lineinfile:
+    path: "{{ home_directory }}/ansible_test_directory/file_to_remove1.txt"
+    regexp: '^LPK'
+    line: 'LPK = 10'

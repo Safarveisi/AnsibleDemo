@@ -1,5 +1,5 @@
 - name: Show some facts
-  debug:
+  ansible.builtin.debug:
     var: ansible_facts['kernel_version']
   when:
     - ansible_facts['os_family'] == "Debian"
@@ -10,7 +10,7 @@
   register: fault_token
 
 - name: Print fault token
-  debug:
+  ansible.builtin.debug:
     var: fault_token.stdout.split('-')[0].split('.')[1]
   when: fault_token.stdout.find("hvs") != -1
 
@@ -26,10 +26,12 @@
     single_branch: yes
     version: master
   register: clone_result
-  when: not repo_exists_result.stat.isdir is defined and clone_git_repo
+  when: 
+    - not repo_exists_result.stat.isdir is defined
+    - clone_git_repo
 
 - name: Show clone result
-  debug:
+  ansible.builtin.debug:
     var: clone_result
   when: clone_result.changed
 
@@ -49,6 +51,18 @@
   when: not file_stat.stat.exists 
 
 - name: Copy result
-  debug:
+  ansible.builtin.debug:
     var: copy_result
   when: copy_result.changed
+
+- name: Find all fraud directories in the remote server
+  ansible.builtin.find:
+    paths: "{{ home_directory }}"
+    file_type: directory
+    patterns: '^fraud.*'
+    use_regex: yes
+  register: fraud_directories
+
+- name: Print the file name matched in the search
+  ansible.builtin.debug: 
+    msg: "{{ fraud_directories.files | map(attribute='path') | list  | map('split', '/') | map('last') | list }}"

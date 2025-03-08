@@ -89,3 +89,11 @@
     path: "{{ home_directory }}/ansible_test_directory/file_to_remove1.txt"
     regexp: '^LPK'
     line: 'LPK = 10'
+
+- name: Create new files
+  ansible.builtin.copy:
+    dest: "{{ home_directory }}/ansible_test_directory/new_file2.txt"
+    content: "{{ message }}"
+    mode: "0664"
+  when: message is defined
+  

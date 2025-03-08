@@ -1,0 +1,12 @@
+- name: Check if docker command is available and return repositories
+  ansible.builtin.command: >
+    docker images --format "{{ '{{.Repository}}' }}"
+  register: docker_status
+  failed_when: > 
+    docker_status.rc == 2
+
+- name: List all images
+  ansible.builtin.debug:
+    msg:
+      - "Images available on localhost are:"
+      - "{{ docker_status.stdout_lines }}"

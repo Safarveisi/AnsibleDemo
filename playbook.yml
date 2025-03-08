@@ -1,11 +1,6 @@
 - name: Github play
   hosts: ionos
   gather_facts: true
-  remote_user: ssafarveisi
-  
-  vars:
-    home_directory: /home/ssafarveisi
-    ansible_python_interpreter: /usr/bin/python3.11
   
   vars_prompt:
 
@@ -15,4 +10,11 @@
       private: false
   
   roles:
-    - custom
+    - remote
+
+- name: Docker check
+  hosts: localhost
+  gather_facts: false
+  
+  roles:
+    - local

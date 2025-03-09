@@ -38,6 +38,10 @@
     name: "{{ default_container_name }}{{ item }}"
     image: "{{ default_container_image }}"
     command: "{{ default_container_command }}"
+    debug: true
+    auto_remove: true
+    cleanup: true
+    detach: false
     state: present
   with_sequence: count={{ container_count }}
   tags: docker_container

@@ -2,6 +2,7 @@
   ansible.builtin.assert:
     that:
       - clone_git_repo is defined
+  tags: assertion
 
 - name: Show some facts
   ansible.builtin.debug:
@@ -9,6 +10,7 @@
   when:
     - ansible_facts['os_family'] == "Debian"
     - ansible_facts['distribution_major_version'] | int >= 12
+  tags: facts
 
 - name: Register a variable
   ansible.builtin.command: cat {{ home_directory }}/.fault-token
@@ -25,7 +27,8 @@
   ansible.builtin.stat:
     dest: "{{ home_directory }}/{{ parent_directory }}"
   register: repo_exists_result
-    
+  tags: git_clone
+
 - name: Clone Github Repo
   ansible.builtin.git:
     repo: https://github.com/Safarveisi/KubeMLOps.git
@@ -36,16 +39,19 @@
   when: 
     - not repo_exists_result.stat.isdir is defined
     - clone_git_repo
+  tags: git_clone
 
 - name: Show clone result
   ansible.builtin.debug:
     var: clone_result
   when: clone_result.changed
+  tags: git_clone
 
 - name: Check if the file to copy already exists
   ansible.builtin.stat:
     path: "{{ home_directory }}/ansible_file.txt"
   register: file_stat
+  tags: copy_file
 
 - name: Copy a file into the remote server
   ansible.builtin.template: 
@@ -56,11 +62,13 @@
   register: copy_result
   ignore_errors: true
   when: not file_stat.stat.exists 
+  tags: copy_file
 
 - name: Copy result
   ansible.builtin.debug:
     var: copy_result
   when: copy_result.changed
+  tags: copy_file
 
 - name: Find all fraud directories in the remote server
   ansible.builtin.find:
@@ -69,16 +77,19 @@
     patterns: '^fraud.*'
     use_regex: yes
   register: fraud_directories
+  tags: search
 
 - name: Print the file name matched in the search
   ansible.builtin.debug: 
     msg: "{{ fraud_directories.files | map(attribute='path') | list  | map('split', '/') | map('last') | list }}"
+  tags: search
 
 - name: List all files in a directory
   ansible.builtin.command: 
     cmd: ls {{ home_directory}}/ansible_test_directory/
   register: listed_files
-  
+  tags: remove_file
+
 - name: Remove files 2 and 3
   ansible.builtin.file:
     path: "{{ home_directory }}/ansible_test_directory/{{ item }}"
@@ -86,12 +97,14 @@
   loop: "{{ listed_files.stdout_lines }}"
   when: 'item is regex("^file_to_remove[23].txt$")'
   notify: Create new files
+  tags: remove_file
 
 - name: Change a line in a file
   ansible.builtin.lineinfile:
     path: "{{ home_directory }}/ansible_test_directory/file_to_remove1.txt"
     regexp: '^LPK'
     line: 'LPK = 10'
+  tags: insert
 
 - name: Create new files
   ansible.builtin.copy:
@@ -99,4 +112,4 @@
     content: "{{ message }}"
     mode: "0664"
   when: message is defined
-  
+  tags: create_file

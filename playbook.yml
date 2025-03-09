@@ -14,7 +14,7 @@
 
 - name: Docker check
   hosts: localhost
-  gather_facts: false
+  gather_facts: true
   
   roles:
     - local

@@ -12,3 +12,12 @@
     msg: "{{ item }}"
   loop: "{{ docker_images.stdout_lines }}"
   when: (docker_images is defined) and item != '<none>'
+
+- name: Check if sudo user exists on system
+  ansible.builtin.getent:
+    database: passwd
+    key: ssafarveisi
+
+- name: Return the info from db provider
+  ansible.builtin.debug:
+    msg: "{{ ansible_facts.getent_passwd }}"

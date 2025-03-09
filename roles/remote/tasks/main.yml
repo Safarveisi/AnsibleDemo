@@ -83,6 +83,7 @@
     state: absent
   loop: "{{ listed_files.stdout_lines }}"
   when: 'item is regex("^file_to_remove[23].txt$")'
+  notify: Create new files
 
 - name: Change a line in a file
   ansible.builtin.lineinfile:

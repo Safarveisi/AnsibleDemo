@@ -12,6 +12,15 @@
   roles:
     - remote
 
+  handlers:
+    - name: Create new files
+      ansible.builtin.file:
+        path: "{{ home_directory }}/ansible_test_directory/{{ item }}"
+        state: touch
+      loop:
+        - file_2.txt
+        - file_3.txt
+
 - name: Docker check
   hosts: localhost
   gather_facts: true
